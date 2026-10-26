@@ -1,0 +1,14 @@
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local and generated files
+*.log
+.env
+.env.*
+!.env.example
+dist/
+outputs/
+
