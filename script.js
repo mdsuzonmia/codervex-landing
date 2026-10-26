@@ -36,11 +36,12 @@ if (copyButton) {
   });
 }
 
-document.querySelectorAll('[data-email-form]').forEach((form) => {
-  form.addEventListener('submit', (event) => {
+document.querySelectorAll('[data-php-form]').forEach((form) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const status = form.querySelector('.form-status');
-    const serviceBoxes = [...form.querySelectorAll('input[name="Services"]')];
+    const submitButton = form.querySelector('[type="submit"]');
+    const serviceBoxes = [...form.querySelectorAll('input[name="Services[]"]')];
     const hasSelectedService = !serviceBoxes.length || serviceBoxes.some((box) => box.checked);
 
     if (!form.checkValidity() || !hasSelectedService) {
@@ -50,21 +51,30 @@ document.querySelectorAll('[data-email-form]').forEach((form) => {
       return;
     }
 
-    const data = new FormData(form);
-    const lines = [];
-    const grouped = new Map();
-    for (const [key, value] of data.entries()) {
-      if (key === 'Consent') continue;
-      grouped.set(key, [...(grouped.get(key) || []), value]);
-    }
-    grouped.forEach((values, key) => lines.push(`${key}: ${values.join(', ')}`));
-
-    const name = data.get('Name') || 'Website visitor';
-    const subject = `${form.dataset.formType} from ${name}`;
-    const body = `Hello CoderVex,\n\n${lines.join('\n')}\n\nSent from codervex.com`;
-    status.textContent = 'Your email application is opening. Review the prepared message, then press Send.';
+    const originalLabel = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending…';
+    status.textContent = 'Sending your message securely…';
     status.className = 'form-status info';
-    window.location.href = `mailto:support@codervex.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Unable to send your message.');
+      status.textContent = result.message;
+      status.className = 'form-status success';
+      form.reset();
+    } catch (error) {
+      status.textContent = error.message || 'Unable to send. Please email support@codervex.com directly.';
+      status.className = 'form-status error';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalLabel;
+    }
   });
 });
 
