@@ -1,38 +1,6 @@
 const year = document.getElementById('year');
 if (year) year.textContent = new Date().getFullYear();
 
-const consentBanner = document.createElement('aside');
-consentBanner.className = 'consent-banner';
-consentBanner.setAttribute('aria-label', 'Analytics preferences');
-consentBanner.innerHTML = '<div><strong>Your privacy matters</strong><p>We use Google Analytics to understand how visitors use this website. Analytics cookies are optional.</p></div><div class="consent-actions"><button type="button" data-consent="denied">Decline</button><button type="button" class="consent-accept" data-consent="granted">Accept analytics</button></div>';
-document.body.appendChild(consentBanner);
-
-const privacyButton = document.createElement('button');
-privacyButton.type = 'button';
-privacyButton.className = 'privacy-settings';
-privacyButton.textContent = 'Privacy settings';
-privacyButton.setAttribute('aria-label', 'Change analytics preferences');
-document.body.appendChild(privacyButton);
-
-let savedConsent = null;
-try { savedConsent = localStorage.getItem('codervex_analytics_consent'); } catch (error) {}
-if (!savedConsent) consentBanner.classList.add('show');
-
-consentBanner.querySelectorAll('[data-consent]').forEach((button) => {
-  button.addEventListener('click', () => {
-    if (window.setAnalyticsConsent) window.setAnalyticsConsent(button.dataset.consent);
-    consentBanner.classList.remove('show');
-    privacyButton.classList.add('show');
-  });
-});
-
-privacyButton.addEventListener('click', () => {
-  consentBanner.classList.add('show');
-  privacyButton.classList.remove('show');
-});
-
-if (savedConsent) privacyButton.classList.add('show');
-
 const toggle = document.querySelector('.nav-toggle');
 const navigation = document.getElementById('site-nav');
 if (toggle && navigation) {
