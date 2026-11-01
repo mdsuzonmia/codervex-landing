@@ -1,6 +1,26 @@
 <?php
 declare(strict_types=1);
 
+function loadLocalEnvironment(string $path): void
+{
+    if (!is_readable($path)) return;
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) return;
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
+        [$name, $value] = array_map('trim', explode('=', $line, 2));
+        if (!preg_match('/^[A-Z_][A-Z0-9_]*$/', $name) || getenv($name) !== false) continue;
+        if (strlen($value) >= 2 && (($value[0] === '"' && str_ends_with($value, '"')) || ($value[0] === "'" && str_ends_with($value, "'")))) {
+            $value = substr($value, 1, -1);
+        }
+        putenv($name . '=' . $value);
+    }
+}
+
+// Real server environment variables take precedence; .env is a local/config fallback.
+loadLocalEnvironment(__DIR__ . DIRECTORY_SEPARATOR . '.env');
+
 session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax', 'cookie_secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'), 'use_strict_mode' => true]);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');

@@ -24,7 +24,7 @@ The contact and quote forms validate visitor input and submit it asynchronously 
 
 ### Required form configuration
 
-Configure these values in the web server/PHP process environment (the project does not load `.env` files):
+Configure these values in the web server/PHP process environment. For local development, copy `.env.example` to the gitignored `.env` file; real process environment variables take precedence:
 
 - `TURNSTILE_SITE_KEY`: public Cloudflare Turnstile site key.
 - `TURNSTILE_SECRET_KEY`: private Turnstile secret; never put it in HTML, JavaScript, or source control.
