@@ -42,7 +42,9 @@ function respond(int $status, bool $success, string $message, array $extra = [])
 function envValue(string $name, string $default = ''): string
 {
     $value = getenv($name);
-    return $value === false ? $default : trim($value);
+    if ($value === false) return $default;
+    $value = trim($value);
+    return $value === '' ? $default : $value;
 }
 
 function logRejection(string $reason, string $formType = 'unknown'): void
